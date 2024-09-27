@@ -48,7 +48,7 @@ export default function Dashboard() {
           </Card>
         ))}
 
-        {(isloading || projects.length == 0) && <LoadingSk />}
+        {isloading && <LoadingSk />}
       </div>
     </div>
   );
