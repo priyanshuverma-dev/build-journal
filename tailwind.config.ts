@@ -17,7 +17,12 @@ const config = {
     "./src/**/*.{ts,tsx}",
     "./node_modules/@nextui-org/theme/dist/**/*.{js,ts,jsx,tsx}",
   ],
-  plugins: [nextui(), addVariablesForColors],
+
+  plugins: [
+    nextui(),
+    addVariablesForColors,
+    require("@tailwindcss/typography"),
+  ],
 } satisfies Config;
 
 export default config;

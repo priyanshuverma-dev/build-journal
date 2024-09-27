@@ -11,7 +11,7 @@ import {
   Link,
   Button,
 } from "@nextui-org/react";
-import { Skull } from "lucide-react";
+import { Variable } from "lucide-react";
 
 export default function Navigation() {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
@@ -27,7 +27,7 @@ export default function Navigation() {
         />
         <NavbarBrand className="">
           <div>
-            <Skull className="h-8 w-10" />
+            <Variable className="w-8 h-8" />
           </div>
           <div>
             <p className="font-bold text-2xl">Build Journal</p>

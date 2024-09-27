@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { DM_Sans } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/providers/theme-provider";
-import QueryProvider from "@/providers/query-provider";
 import { UIProvider } from "@/providers/ui-provider";
 import { SessionProvider } from "next-auth/react";
 
@@ -21,15 +20,13 @@ export default function RootLayout({
   modal: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body className={fonts.className}>
         <SessionProvider>
           <UIProvider>
-            <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-              <QueryProvider>
-                {children}
-                {modal}
-              </QueryProvider>
+            <ThemeProvider attribute="class" enableSystem>
+              {children}
+              {modal}
             </ThemeProvider>
           </UIProvider>
         </SessionProvider>

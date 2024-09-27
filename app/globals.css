@@ -2,8 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
+html {
+  box-sizing: border-box;
+}
+
 .bg-grid {
-  position: absolute;
+  /* position: absolute; */
   inset: 0;
   height: 100%;
   width: 100%;
