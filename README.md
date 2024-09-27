@@ -1,33 +1,121 @@
-This is a Next.js Auth Starter Project with prisma and next-auth.
+# Build Journal - Project Management App
+
+Build Journal is a web application that helps developers document their project ideas, development progress, and feature additions, all in one place. It also allows generating markdown project logs, providing documentation, and tracking a project from start to end.
+
+## Features
+
+- **Project Documentation**: Automatically generate detailed markdown logs for project documentation.
+- **Project Tracking**: Update your project with new features and development progress.
+- **Authentication**: Secure login using GitHub OAuth.
+- **Tech Stack**: Utilize your chosen tech stack to tailor your project setup.
+
+---
 
 ## Getting Started
 
-1. Clone the repository
-2. Install the dependencies
-3. Create a `.env` file in the root of the project and copy the contents of the `.env.example` file into it. Replace the values with your own. The `DATABASE_URL` should be a connection string to your Mongodb database. The `AUTH_SECRET` should be a random string. The `AUTH_GITHUB_ID` and `AUTH_GITHUB_SECRET` should be the client id and client secret of your Github OAuth app. The `NEXTAUTH_URL` should be the URL of your application.
+### Prerequisites
 
-For example, if you are running the application locally, the value should be `http://localhost:3000`. The `.env` file should look like this
+To run the project locally, ensure you have the following:
 
-```
-DATABASE_URL="mnogodb://localhost:27017/your-database-name"
-AUTH_SECRET=""
+- **Node.js** (v16 or higher)
+- **npm** or **yarn** package manager
+- **MongoDB** (for database connection)
 
-AUTH_GITHUB_ID=""
-AUTH_GITHUB_SECRET=""
-```
+### Installation
 
-4. Run the following commands to create the database and run the migrations:
+1. **Clone the repository:**
 
-```
-npx prisma db push
-```
+   ```bash
+   git clone https://github.com/priyanshuverma-dev/build-journal.git
+   cd build-journal
+   ```
 
-5. Run the development server:
+2. **Install dependencies:**
 
-```bash
-npm run dev
-# or
-yarn dev
-```
+   ```bash
+   bun install
+   ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+3. **Set up environment variables:**
+
+   Create a `.env` file at the root of the project and add the following:
+
+   ```bash
+   DATABASE_URL=your-database-url
+   AUTH_SECRET=your-auth-secret
+   AUTH_GITHUB_ID=your-github-client-id
+   AUTH_GITHUB_SECRET=your-github-client-secret
+   GROQ_API_KEY=your-groq-api-key
+   ```
+
+4. **Run the application:**
+
+   To run the project locally, use:
+
+   ```bash
+   bun dev
+   ```
+
+   The app should be running on `http://localhost:3000`.
+
+---
+
+## Environment Variables
+
+The application requires the following environment variables to be set:
+
+- **`DATABASE_URL`**: MongoDB connection URL.
+- **`AUTH_SECRET`**: A secret key used for authentication sessions.
+- **`AUTH_GITHUB_ID`**: GitHub OAuth application client ID for user authentication.
+- **`AUTH_GITHUB_SECRET`**: GitHub OAuth application client secret for authentication.
+- **`GROQ_API_KEY`**: API key used to generate markdown and other project-related content via GROQ queries.
+
+---
+
+## Technologies Used
+
+- **Next.js**: Server-side rendering and static site generation.
+- **Tailwind CSS**: For responsive UI design.
+- **NextAuth.js**: Authentication solution with GitHub OAuth.
+- **Prisma**: Database ORM for MongoDB.
+- **Framer Motion**: Animation and interactive UI elements.
+- **OpenAI API**: For markdown generation and project descriptions.
+
+---
+
+## Authentication
+
+This project uses **GitHub OAuth** for authentication. To set up your GitHub OAuth credentials:
+
+1. Go to [GitHub Developer Settings](https://github.com/settings/developers).
+2. Create a new OAuth app.
+3. Set the callback URL to `http://localhost:3000/api/auth/callback/github`.
+4. Copy the **Client ID** and **Client Secret** into the `.env` file as `AUTH_GITHUB_ID` and `AUTH_GITHUB_SECRET`.
+
+---
+
+## Database Setup
+
+This project uses **MongoDB** as the database. You can either host your MongoDB database on [MongoDB Atlas](https://www.mongodb.com/cloud/atlas) or set it up locally. Add your MongoDB connection string to the `DATABASE_URL` environment variable.
+
+---
+
+## API Documentation
+
+### Project Routes
+
+- **`POST /api/projects`**: Add a new project (automatically generates markdown for project logs).
+- **`GET /api/projects`**: Retrieve a list of all projects.
+- **`DELETE /api/projects`**: Remove a project by ID.
+
+---
+
+## Deployment
+
+For deploying this project, you can use platforms like **Vercel** or **Netlify** for serverless deployment. Be sure to set the necessary environment variables in the deployment environment.
+
+---
+
+## License
+
+This project is licensed under the MIT License.
