@@ -21,38 +21,14 @@ export function PromptInput() {
     const value = formData.get("inputfield");
     if (!value) return;
 
-    const promise = () =>
-      new Promise(async (resolve, reject) => {
-        const initialProjectCount = projects.length;
+    await appendMessage(
+      new TextMessage({
+        content: value.toString(),
+        role: Role.User,
+      })
+    );
 
-        // Attempt to append the message
-        await appendMessage(
-          new TextMessage({
-            content: value.toString(),
-            role: Role.User,
-          })
-        );
-
-        // Check the new count of projects
-        const newProjectCount = projects.length;
-        // If the count hasn't changed, reject the promise
-        if (newProjectCount === initialProjectCount) {
-          reject(
-            new Error(
-              "Could you provide me with a brief description of project?."
-            )
-          );
-        } else {
-          resolve(newProjectCount); // Resolve with the new project count or any other value you need
-        }
-      });
-    toast.promise(promise, {
-      loading: "generating project...",
-      success: () => {
-        return "project has been added";
-      },
-      error: (err) => err.message ?? "stopped or failed to generate",
-    });
+    toast.info("generating project...");
   };
   return (
     <form
@@ -66,6 +42,7 @@ export function PromptInput() {
         isDisabled={isLoading}
         name="inputfield"
         rows={3}
+        id="prompt-input"
         onChange={(e) => setValue(e.currentTarget.value)}
       />
       {isLoading && (
@@ -75,7 +52,7 @@ export function PromptInput() {
         <button
           type="submit"
           disabled={isLoading}
-          className="absolute right-2 top-1/2 z-50 -translate-y-1/2 h-8 w-8 rounded-full disabled:bg-gray-100 bg-black dark:bg-zinc-900 dark:disabled:bg-zinc-800 transition duration-200 flex items-center justify-center"
+          className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full disabled:bg-gray-100 bg-black dark:bg-zinc-900 dark:disabled:bg-zinc-800 transition duration-200 flex items-center justify-center"
         >
           <motion.svg
             xmlns="http://www.w3.org/2000/svg"

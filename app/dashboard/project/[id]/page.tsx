@@ -1,35 +1,69 @@
+"use client";
+
 import React from "react";
-import { notFound } from "next/navigation";
+import { notFound, useParams } from "next/navigation";
 import md from "markdown-it";
 import { Link } from "@nextui-org/react";
 import { ArrowRight } from "lucide-react";
-import db from "@/lib/db";
-import { Project } from "@prisma/client";
+import { fetchProject, updateProject } from "@/lib/data";
+import { useQuery } from "@tanstack/react-query";
+import { useProjects } from "@/lib/projects/use-projects";
 
-const fetchProject = async (id: string): Promise<Project | null> => {
-  try {
-    const data = await db.project.findUnique({
-      where: {
-        id,
+import { Skeleton } from "@nextui-org/react";
+import { useCopilotAction, useCopilotReadable } from "@copilotkit/react-core";
+
+export default function ProjectPage() {
+  const { id } = useParams();
+  const {
+    data: project,
+    error,
+    isLoading,
+    refetch,
+  } = useQuery({
+    queryKey: ["project", id],
+    queryFn: () => fetchProject(id as string),
+    enabled: !!id,
+  });
+
+  useCopilotReadable({
+    description: "The current opened project",
+    value: JSON.stringify(project),
+  });
+
+  useCopilotAction({
+    name: "updateProject",
+    description: "updates feature in project markdown/development log",
+    render: "updating...",
+    parameters: [
+      {
+        name: "prompt",
+        type: "string",
+        description: "The prompt to update markdown.",
+        required: true,
       },
-    });
-    return data;
-  } catch (error) {
-    console.log(error);
-    return null;
-  }
-};
-
-export default async function ProjectPage({
-  params: { id },
-}: {
-  params: { id: string };
-}) {
-  const project = await fetchProject(id);
-
-  if (project == undefined) {
-    notFound();
-  }
+    ],
+    handler: async ({ prompt }) => {
+      if (!prompt) {
+        throw new Error("prompt is required");
+      }
+      try {
+        // Call addProject function from context to add the project
+        await updateProject(
+          {
+            id: id as string,
+            description: prompt,
+          },
+          "1"
+        );
+        await refetch();
+      } catch (error: any) {
+        console.log(error);
+      }
+    },
+  });
+  if (isLoading) return <ProjectPageSkeleton />;
+  if (error) return <div>Failed to load project</div>;
+  if (!project) return notFound();
 
   return (
     <article className="rounded-lg p-1 m-2 container max-w-[60ch] mx-auto px-4 bg-default-50">
@@ -62,3 +96,31 @@ export default async function ProjectPage({
     </article>
   );
 }
+
+const ProjectPageSkeleton = () => {
+  return (
+    <article className="rounded-lg p-1 m-2 container max-w-[60ch] mx-auto px-4 bg-default-50">
+      <div className="prose mx-auto mt-8 dark:prose-invert pb-2">
+        {/* Skeleton for the project title */}
+        <Skeleton className="h-10 w-3/4 mb-1" />
+
+        {/* Skeleton for the project link and name */}
+        <div className="mb-4 flex items-center">
+          <Skeleton className="h-5 w-1/6" />
+          <span className="inline-block mx-2">{"  "}</span>
+          <Skeleton className="h-8 w-1/4" />
+        </div>
+
+        {/* Skeleton for the project markdown content */}
+        <div className="space-y-4">
+          <Skeleton className="h-6 w-full" />
+          <Skeleton className="h-6 w-full" />
+          <Skeleton className="h-6 w-5/6" />
+          <Skeleton className="h-6 w-3/7" />
+          <Skeleton className="h-6 w-3/8" />
+          <Skeleton className="h-6 w-3/6" />
+        </div>
+      </div>
+    </article>
+  );
+};

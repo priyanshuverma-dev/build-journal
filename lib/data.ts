@@ -18,24 +18,38 @@ export const features = [
   },
 ];
 
+type ProjectPayload = {
+  name: string;
+  description: string;
+};
+
 export async function fetchProjects() {
   try {
-    const res = await fetch("/api/projects");
+    const res = await fetch("/api/projects?md=0");
 
     const data = await res.json();
     if (res.status != 200) throw new Error(data.error);
 
     return data as Project[];
   } catch (error) {
-    console.log("[PROJECT_FETCHING]", error);
+    console.log("[PROJECTS_FETCHING]", error);
     return [];
   }
 }
 
-type ProjectPayload = {
-  name: string;
-  description: string;
-};
+export async function fetchProject(id: string) {
+  try {
+    const res = await fetch(`/api/projects/${id}`);
+
+    const data = await res.json();
+    if (res.status != 200) throw new Error(data.error);
+
+    return data as Project;
+  } catch (error) {
+    console.log("[PROJECT_FETCHING]", error);
+    return null;
+  }
+}
 
 export async function createProject(payload: ProjectPayload) {
   try {
@@ -53,9 +67,10 @@ export async function createProject(payload: ProjectPayload) {
     return null;
   }
 }
-export async function updateProject(payload: Partial<Project>) {
+
+export async function updateProject(payload: Partial<Project>, md?: string) {
   try {
-    const res = await fetch("/api/projects", {
+    const res = await fetch(`/api/projects?md=${md}`, {
       method: "PATCH",
       body: JSON.stringify(payload),
     });
@@ -69,6 +84,7 @@ export async function updateProject(payload: Partial<Project>) {
     return null;
   }
 }
+
 export async function deleteProject(id: string) {
   try {
     const res = await fetch("/api/projects", {

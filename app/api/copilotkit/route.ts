@@ -9,7 +9,7 @@ import Groq from "groq-sdk";
 
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
-const copilotKit = new CopilotRuntime();
+const runtime = new CopilotRuntime();
 
 const serviceAdapter = new GroqAdapter({
   groq,
@@ -18,8 +18,8 @@ const serviceAdapter = new GroqAdapter({
 
 export const POST = async (req: NextRequest) => {
   const { handleRequest } = copilotRuntimeNextJSAppRouterEndpoint({
-    runtime: copilotKit,
     serviceAdapter,
+    runtime,
     endpoint: "/api/copilotkit",
   });
 

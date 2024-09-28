@@ -90,7 +90,14 @@ export default function Home() {
               more organized, allowing you to focus on what matters most:
               building amazing products.
             </p>
-            <Button className="mt-6" color="primary" variant="shadow">
+            <Button
+              as={Link}
+              href="/dashboard"
+              variant="faded"
+              color="default"
+              size="lg"
+              className="w-40 h-16 z-10"
+            >
               Join Now
             </Button>
           </div>

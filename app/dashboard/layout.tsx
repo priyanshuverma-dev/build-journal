@@ -1,6 +1,7 @@
 import { CopilotKit } from "@copilotkit/react-core";
 import {
   CopilotKitCSSProperties,
+  CopilotPopup,
   CopilotSidebar,
   WindowProps,
 } from "@copilotkit/react-ui";
@@ -30,7 +31,8 @@ export default function DashboardLayout({
             } as CopilotKitCSSProperties
           }
         >
-          <CopilotSidebar
+          <CopilotPopup
+            instructions={instc}
             labels={{
               title: "Your Assistant",
               initial: "Hi! 👋 How can I assist you today?",
@@ -39,7 +41,7 @@ export default function DashboardLayout({
               openIcon: <BotIcon />,
             }}
             className="text-primary"
-          ></CopilotSidebar>
+          />
         </div>
       </CopilotKit>
       <footer className="py-6 mt-20 bottom-0">
@@ -53,3 +55,8 @@ export default function DashboardLayout({
     </div>
   );
 }
+
+const instc = `
+You are managing projects. Depending on the scenario, your task will either be to add a new project or update an existing one.
+You should use unique name of the project before creation strictly.
+`;
