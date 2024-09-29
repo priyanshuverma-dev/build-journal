@@ -16,7 +16,11 @@ export const GET = async (
         id,
       },
       include: {
-        pages: true,
+        pages: {
+          orderBy: {
+            createdAt: "asc",
+          },
+        },
       },
     });
 

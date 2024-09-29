@@ -1,19 +1,23 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { notFound, useParams } from "next/navigation";
 import md from "markdown-it";
-import { Link } from "@nextui-org/react";
-import { ArrowRight } from "lucide-react";
-import { fetchProject, updateProject } from "@/lib/data";
-import { useQuery } from "@tanstack/react-query";
-import { useProjects } from "@/lib/projects/use-projects";
-
+import { Button, Link } from "@nextui-org/react";
+import { ArrowRight, Edit3 } from "lucide-react";
+import { createPage, fetchProject, updatePage } from "@/lib/data";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { Pagination } from "@nextui-org/react";
 import { Skeleton } from "@nextui-org/react";
 import { useCopilotAction, useCopilotReadable } from "@copilotkit/react-core";
+import MDEditor from "@uiw/react-md-editor";
 
 export default function ProjectPage() {
   const { id } = useParams();
+  const [currentPage, setCurrentPage] = useState(1);
+  const [editedMarkdown, setEditedMarkdown] = useState("");
+  const [isEditing, setIsEditing] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
   const {
     data: project,
     error,
@@ -31,14 +35,14 @@ export default function ProjectPage() {
   });
 
   useCopilotAction({
-    name: "updateProject",
-    description: "updates feature in project markdown/development log",
-    render: "updating...",
+    name: "addPage",
+    description: "add page/feature/log in project markdown/development log",
+    render: "adding new page...",
     parameters: [
       {
         name: "prompt",
         type: "string",
-        description: "The prompt to update markdown.",
+        description: "The prompt to generate/add new page.",
         required: true,
       },
     ],
@@ -48,27 +52,89 @@ export default function ProjectPage() {
       }
       try {
         // Call addProject function from context to add the project
-        await updateProject(
-          {
-            id: id as string,
-            description: prompt,
-          },
-          "1"
-        );
+        await createPage({
+          projectId: id as string,
+          description: prompt,
+        });
         await refetch();
       } catch (error: any) {
         console.log(error);
       }
     },
   });
+
+  const mutation = useMutation({
+    mutationFn: ({
+      pageId,
+      updatedMarkdown,
+    }: {
+      updatedMarkdown: string;
+      pageId: string;
+    }) =>
+      updatePage({
+        projectId: id as string,
+        id: pageId,
+        markdown: updatedMarkdown,
+      }),
+    onSuccess: () => {
+      refetch();
+      setIsUpdating(true);
+      setIsEditing(false);
+    },
+  });
+
   if (isLoading) return <ProjectPageSkeleton />;
   if (error) return <div>Failed to load project</div>;
   if (!project) return notFound();
 
+  const handleSave = () => {
+    const currentProjectPage = project.pages[currentPage - 1];
+    if (editedMarkdown == currentProjectPage.markdown) return;
+    setIsUpdating(true);
+    mutation.mutate({
+      updatedMarkdown: editedMarkdown,
+      pageId: currentProjectPage.id,
+    }); // Save edited markdown
+  };
+  const handleEditToggle = () => {
+    setEditedMarkdown(project.pages[currentPage - 1].markdown); // Load existing markdown
+    setIsEditing(!isEditing);
+  };
+  const totalPages = project.pages.length;
+  const currentMarkdown = project.pages[currentPage - 1].markdown;
   return (
-    <article className="rounded-lg p-1 m-2 container max-w-[60ch] mx-auto px-4 bg-default-50">
+    <article
+      className={`rounded-lg p-1 m-2 container ${
+        isEditing ? "w-full" : "max-w-[60ch]"
+      } mx-auto px-4 bg-default-50`}
+    >
       <div className="prose mx-auto mt-8 dark:prose-invert">
-        <h1 className="dark:text-white">{project.name}</h1>
+        <div className="flex flex-row justify-between">
+          <h1 className="dark:text-white">{project.name}</h1>
+          {isEditing ? (
+            <div className="p-1 space-x-2 flex justify-end">
+              <Button
+                onClick={handleSave}
+                color="success"
+                className="mt-4"
+                isLoading={isUpdating}
+              >
+                Save Changes
+              </Button>
+              <Button
+                onClick={handleEditToggle}
+                className="mt-4 ml-2"
+                disabled={isUpdating}
+              >
+                Cancel
+              </Button>
+            </div>
+          ) : (
+            <Button onClick={handleEditToggle} size="sm" radius="full">
+              <Edit3 className="w-4 h-4" />
+            </Button>
+          )}
+        </div>
         <div className="mb-4 flex items-center">
           <Link
             href="/dashboard"
@@ -80,18 +146,42 @@ export default function ProjectPage() {
             <ArrowRight />
           </span>
           <h3 className="inline-block text-[18px] decoration-[#525252] dark:text-white mt-[3px] mb-[4px] text-3xl font-bold">
-            {project.name}
+            {project.name} - Page {currentPage}
           </h3>
         </div>
-        <div
-          dangerouslySetInnerHTML={{
-            __html: md({
-              linkify: true,
-              typographer: true,
-            }).render(project.markdown),
-          }}
-          className="dark:text-white"
-        />
+        {isEditing ? (
+          <div>
+            <MDEditor
+              value={editedMarkdown}
+              onChange={(value) => setEditedMarkdown(value || "")}
+              height="100vh"
+              className="h-screen p-2"
+            />
+          </div>
+        ) : (
+          <div>
+            <div
+              dangerouslySetInnerHTML={{
+                __html: md({
+                  linkify: true,
+                  typographer: true,
+                }).render(currentMarkdown),
+              }}
+              className="dark:text-white"
+            />
+          </div>
+        )}
+        <div className="fixed bottom-0 left-1/2 transform -translate-x-1/2 -mb-2">
+          <Pagination
+            isCompact
+            color="default"
+            showControls
+            total={totalPages}
+            initialPage={1}
+            page={currentPage}
+            onChange={(page) => setCurrentPage(page)}
+          />
+        </div>
       </div>
     </article>
   );

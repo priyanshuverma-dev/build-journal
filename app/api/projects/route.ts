@@ -2,9 +2,7 @@ import { auth } from "@/auth";
 import db from "@/lib/db";
 import { NextRequest, NextResponse } from "next/server";
 import { Project } from "@prisma/client";
-import { Mistral } from "@mistralai/mistralai";
-
-const model = new Mistral({ apiKey: process.env.MISTRAL_API_KEY });
+import { copilotGenerateMarkdown } from "@/lib/data";
 
 export const GET = async (req: NextRequest) => {
   try {
@@ -21,13 +19,6 @@ export const GET = async (req: NextRequest) => {
     const projects = await db.project.findMany({
       where: {
         userId: user!.id,
-      },
-      select: {
-        id: true,
-        name: true,
-        description: true,
-        createdAt: true,
-        updatedAt: true,
       },
     });
 
@@ -80,8 +71,14 @@ export const POST = async (req: NextRequest) => {
       data: {
         name,
         description,
-        // markdown,
         userId: user.id,
+        pages: {
+          create: {
+            markdown,
+            title: `${name} - Overview`,
+            description,
+          },
+        },
       },
     });
 
@@ -126,33 +123,5 @@ export const PATCH = async (req: NextRequest) => {
     return NextResponse.json(project);
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
-  }
-};
-
-const copilotGenerateMarkdown = async (prompt: string): Promise<string> => {
-  try {
-    const chatCompletion = await model.chat.complete({
-      model: "mistral-large-latest",
-      messages: [
-        {
-          role: "assistant",
-          content:
-            "You are a markdown generation assistant. Based on the project name and description provided, create a comprehensive development log for the project.",
-        },
-        {
-          role: "user",
-          content: prompt,
-        },
-      ],
-    });
-
-    if (chatCompletion.choices && chatCompletion.choices.length > 0) {
-      return chatCompletion.choices[0].message.content?.trim() || ""; // Extract and return the generated markdown
-    } else {
-      throw new Error("No markdown generated from MistralAI.");
-    }
-  } catch (error: any) {
-    console.error("Error generating markdown:", error);
-    throw new Error("Failed to generate markdown.");
   }
 };
