@@ -68,7 +68,8 @@ The application requires the following environment variables to be set:
 - **`AUTH_SECRET`**: A secret key used for authentication sessions.
 - **`AUTH_GITHUB_ID`**: GitHub OAuth application client ID for user authentication.
 - **`AUTH_GITHUB_SECRET`**: GitHub OAuth application client secret for authentication.
-- **`GROQ_API_KEY`**: API key used to generate markdown and other project-related content via GROQ queries.
+- **`GROQ_API_KEY`**: API key used for copilotkit and other project-related content via GROQ queries.
+- **`MISTRAL_API_KEY`**: API key used to generate markdown.
 
 ---
 
@@ -79,7 +80,7 @@ The application requires the following environment variables to be set:
 - **NextAuth.js**: Authentication solution with GitHub OAuth.
 - **Prisma**: Database ORM for MongoDB.
 - **Framer Motion**: Animation and interactive UI elements.
-- **OpenAI API**: For markdown generation and project descriptions.
+- **AI APIs**: For markdown generation and copilotkit.
 
 ---
 
@@ -97,16 +98,6 @@ This project uses **GitHub OAuth** for authentication. To set up your GitHub OAu
 ## Database Setup
 
 This project uses **MongoDB** as the database. You can either host your MongoDB database on [MongoDB Atlas](https://www.mongodb.com/cloud/atlas) or set it up locally. Add your MongoDB connection string to the `DATABASE_URL` environment variable.
-
----
-
-## API Documentation
-
-### Project Routes
-
-- **`POST /api/projects`**: Add a new project (automatically generates markdown for project logs).
-- **`GET /api/projects`**: Retrieve a list of all projects.
-- **`DELETE /api/projects`**: Remove a project by ID.
 
 ---
 

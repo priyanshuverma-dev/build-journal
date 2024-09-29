@@ -44,7 +44,7 @@ export default function DashboardLayout({
           />
         </div>
       </CopilotKit>
-      <footer className="py-6 mt-20 bottom-0">
+      <footer className="py-6 mt-10 mb-10 bottom-0">
         <div className="container mx-auto px-6 text-center text-gray-400">
           <p>
             &copy; {new Date().getFullYear()} Build Journal. All rights

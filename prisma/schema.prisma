@@ -32,9 +32,11 @@ model Project {
 }
 
 model Page {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  title     String
-  pageNo    Int
+  id          String @id @default(auto()) @map("_id") @db.ObjectId
+  title       String
+  description String
+
+  pageNo    Int      @default(0)
   markdown  String   @db.String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
