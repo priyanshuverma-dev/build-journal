@@ -3,6 +3,7 @@ import db from "@/lib/db";
 import { NextRequest, NextResponse } from "next/server";
 import { Project } from "@prisma/client";
 import { copilotGenerateMarkdown } from "@/lib/data";
+import { initMarkdownPrompt } from "@/lib/utils";
 
 export const GET = async (req: NextRequest) => {
   try {
@@ -35,29 +36,15 @@ export const POST = async (req: NextRequest) => {
 
     if (!session) throw new Error("unauthenticated");
 
-    const { name, description } = await req.json();
+    const { name, description, markdown } = await req.json();
 
-    if (!name) {
+    if (!name || !markdown) {
       throw new Error("name is required.");
     }
-    const markdownPrompt = `
-  You are a markdown generation assistant. Based on the project name and description provided, create a comprehensive development log for the project.
 
-  - Project Name: "${name}"
-  - Project Description: "${description}"
-
-  The development log should include the following sections:
-  1. **Project Overview**: A brief introduction to the project and its goals.
-  2. **Phases**: List of phases from setuping locally to deployment give name and prompt to generate them.
-  3. **Initial Setup**: Describe the initial steps taken to start the project, including tech stack choices.
-  4. **Code Snippets**: From scratch start by setuping project add code and terminal command snippets.
-  5. **Feature Development**: Discuss major features developed, including design decisions and any iterations.
-  6. **Development Milestones**: Document key milestones achieved during the project, such as feature completions, challenges faced, and solutions implemented.
-  Please make the markdown clear and structured, providing details that capture the development journey of the project.
-  - Don't use "\`" in starting of markdown or end use only in code snippets
-`;
-
-    const markdown = await copilotGenerateMarkdown(markdownPrompt); // Generate the markdown here
+    // const markdown = await copilotGenerateMarkdown(
+    //   initMarkdownPrompt(name, description)
+    // ); // Generate the markdown here
 
     const user = await db.user.findUnique({
       where: {

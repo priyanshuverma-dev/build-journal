@@ -37,7 +37,7 @@ export default function ProjectPage() {
   useCopilotAction({
     name: "addPage",
     description: "add page/feature/log in project markdown/development log",
-    render: "adding new page...",
+    render: "adding new page can take upto 1 minute...",
     parameters: [
       {
         name: "prompt",
@@ -50,10 +50,13 @@ export default function ProjectPage() {
       if (!prompt) {
         throw new Error("prompt is required");
       }
+      if (!project) {
+        throw new Error("project is required");
+      }
       try {
         // Call addProject function from context to add the project
         await createPage({
-          projectId: id as string,
+          project: project,
           description: prompt,
         });
         await refetch();

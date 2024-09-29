@@ -13,4 +13,10 @@ const globalForPrisma = globalThis as unknown as {
 const db = globalForPrisma.prisma ?? prismaClientSingleton();
 if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = db;
 
+// db.$use(async (params, next) => {
+//   if (params.model == "Project" && params.action == "create") {
+//     const { data } = params.args;
+//   }
+// });
+
 export default db;
