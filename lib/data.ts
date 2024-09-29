@@ -1,5 +1,6 @@
 import { Mistral } from "@mistralai/mistralai";
 import { Page } from "@prisma/client";
+import { initMarkdownPrompt, newMarkdownPrompt } from "./utils";
 
 export type Project = {
   id: string;
@@ -34,7 +35,7 @@ type ProjectPayload = {
   description: string;
 };
 
-const model = new Mistral({ apiKey: process.env.MISTRAL_API_KEY });
+const model = new Mistral({ apiKey: process.env.NEXT_PUBLIC_MISTRAL_API_KEY });
 export const copilotGenerateMarkdown = async (
   prompt: string
 ): Promise<string> => {
@@ -92,11 +93,15 @@ export async function fetchProject(id: string) {
     return null;
   }
 }
+
 export async function createProject(payload: ProjectPayload) {
   try {
+    const markdown = await copilotGenerateMarkdown(
+      initMarkdownPrompt(payload.name, payload.description)
+    );
     const res = await fetch("/api/projects", {
       method: "POST",
-      body: JSON.stringify(payload),
+      body: JSON.stringify({ markdown, ...payload }),
     });
 
     const data = await res.json();
@@ -108,6 +113,7 @@ export async function createProject(payload: ProjectPayload) {
     return null;
   }
 }
+
 export async function deleteProject(id: string) {
   try {
     const res = await fetch(`/api/projects/${id}`, {
@@ -127,12 +133,19 @@ export async function deleteProject(id: string) {
 // PAGES
 export async function createPage(payload: {
   description: string;
-  projectId: string;
+  project: Project;
 }) {
   try {
+    const markdown = await copilotGenerateMarkdown(
+      newMarkdownPrompt(payload.project, payload.description)
+    );
     const res = await fetch(`/api/markdown`, {
       method: "POST",
-      body: JSON.stringify(payload),
+      body: JSON.stringify({
+        description: payload.description,
+        markdown,
+        projectId: payload.project.id,
+      }),
     });
 
     const data = await res.json();
