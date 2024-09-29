@@ -110,9 +110,8 @@ export async function createProject(payload: ProjectPayload) {
 }
 export async function deleteProject(id: string) {
   try {
-    const res = await fetch("/api/projects", {
+    const res = await fetch(`/api/projects/${id}`, {
       method: "DELETE",
-      body: JSON.stringify({ id }),
     });
 
     const data = await res.json();
